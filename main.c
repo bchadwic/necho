@@ -8,8 +8,6 @@
 #include <netinet/in.h>
 #include "main.h"
 
-#define N 200
-
 const char *USAGE = "usage: necho [HOST] [MESSAGE...]\n";
 
 const char ECHO_MESSAGE = 8;
