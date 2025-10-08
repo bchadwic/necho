@@ -13,14 +13,13 @@ const char *USAGE = "usage: necho [HOST] [MESSAGE...]\n";
 const char ECHO_MESSAGE = 8;
 const char DEFAULT_CODE = 0;
 
-const int MTU_LIMIT   = 1500;
-const int MAX_PAYLOAD = 1452;
-
+const size_t MAX_PAYLOAD = 1452;
+const int MTU_LIMIT = 1500;
 
 int main(int argc, char **argv) {
     // necho 8.8.8.8 howdy
     if (argc < 3) {
-        printf("%s", USAGE);
+        fprintf(stderr, "%s", USAGE);
         return 1;
     }
 
@@ -29,7 +28,7 @@ int main(int argc, char **argv) {
     argc--;
     char *msg = message(argc, ++argv); 
     if (msg == NULL) {
-        printf("message data too long\n");
+        fprintf(stderr, "main: Message too long\n");
         return 1;
     }
 
@@ -46,8 +45,10 @@ char* message(int argc, char **argv) {
         n += strlen(argv[i]) + 1;
     }
 
-    // 1500B mtu - 40B ipv6 header w/o ext. - 8B icmp header = ~1452B
-    if (n >= MAX_PAYLOAD) return NULL;
+    // 1500B mtu - 40B ipv6 header w/o ext. - 8B icmp header = 1452B
+    if (n >= MAX_PAYLOAD) {
+        return NULL;
+    }
 
     char *msg = malloc(n);
     if (!msg) { 
@@ -68,19 +69,6 @@ char* message(int argc, char **argv) {
     return msg;
 }
 
-/*
-https://datatracker.ietf.org/doc/html/rfc792
-
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |     Type      |     Code      |          Checksum             |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |           Identifier          |        Sequence Number        |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |     Data ...
-   +-+-+-+-+-
-*/
 int necho(char *dst_host, char *msg) {
     int fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (fd == -1) {
@@ -127,7 +115,19 @@ int necho(char *dst_host, char *msg) {
     return 0;
 }
 
+/*
+https://datatracker.ietf.org/doc/html/rfc792
 
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     Type      |     Code      |          Checksum             |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |           Identifier          |        Sequence Number        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     Data ...
+   +-+-+-+-+-
+*/
 void packet(uint8_t *buf, size_t n, char *msg) {
     buf[0] = ECHO_MESSAGE;
     buf[1] = DEFAULT_CODE;
