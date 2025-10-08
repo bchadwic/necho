@@ -2,7 +2,7 @@
 
 ### About
 
-network echo, or _necho_ (super clever ikr), is a cli widget that writes to stdout the icmp echo reply data from a server.
+network echo, or _necho_ (super clever ikr), is a cli widget that writes to stdout the icmp echo reply data from a server
 
 ### Usage
 
@@ -25,5 +25,9 @@ $ necho 9.8.7.6.5.4.3.2.1 lift off
 ```bash
 $ git clone https://github.com/bchadwic/necho.git
 $ gcc -o necho main.c
+# stop! run the below if you trust me, which you definitely shouldn't
 $ sudo mv necho /usr/local/bin/ && sudo setcap cap_net_raw+ep /usr/local/bin/necho
 ```
+
+### Appendix
+this is for educational purposes only, it doesn't support dns names, ipv6, windows, timeouts, or anything else
