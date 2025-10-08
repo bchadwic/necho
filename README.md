@@ -16,6 +16,9 @@ $ necho 8.8.8.8 "if you're reading this, I'm alive."
 $ necho 127.0.0.1 look mom\! no quotes
 #> look mom! no quotes
 
+$ cat war-and-peace-the-extended-cut.txt | xargs -0 necho 1.1.1.1
+#> main: message too long
+
 $ necho 9.8.7.6.5.4.3.2.1 lift off
 #> sendto: Permission denied
 ```
